@@ -9,12 +9,14 @@ public class TracheaLineDrawer : MonoBehaviour
     public float lineSpeedFactor = 0.1f; // Factor to scale down the mouse velocity to control line speed
     public float maxSpeed = 5f;
     public float smoothingFactor = 0.05f;
+    public MoveOrgan moveOrgan;
 
     private List<Vector3> points = new List<Vector3>();
     private Vector3 lastMousePosition;
     private Vector3 currentLinePosition;
     private bool isDrawing = false;
     private AudioSource tracheaAS;
+    
 
     private bool IsMouseInWindow()
     {
@@ -46,7 +48,7 @@ public class TracheaLineDrawer : MonoBehaviour
         mousePosition.z = 0; //Ensure line is in 2D space
 
         // Detect mouse hold and initiate drawing
-        if (Input.GetMouseButton(0) && IsMouseInWindow())
+        if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding)
         {
             if (!isDrawing)
             {

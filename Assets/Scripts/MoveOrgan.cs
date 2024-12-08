@@ -1,55 +1,121 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MoveOrgan : MonoBehaviour
 {
-    /*When a player clicks and holds on an organ, the organ is lifted closer to the camera (as if it is picked up). The player, while holding,
-      can move the mouse and the object will follow. When the mouse button releases, the organ falls to the original z coordinate.
-    */
+
+    public bool isHolding { get; set; }
+    public InputActionReference click;
 
     private Vector3 mousePosition;
+    private Transform pickedUpTransform;
+    private float originalZ;
 
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        pickedUpTransform = null;
+    }
+
+    private void OnEnable()
+    {
+        click.action.Enable();
+        click.action.started += OnLeftMouseDown;
+        click.action.canceled += OnLeftMouseRelease;
+    }
+
+    private void OnDisable()
+    {
+        //Unsubscribe to avoid memory leaks
+        click.action.started -= OnLeftMouseDown;
+        click.action.canceled -= OnLeftMouseRelease;
+        click.action.Disable();
+    }
+
+    private void OnLeftMouseDown(InputAction.CallbackContext context)
+    {
+        Debug.Log("Mouse pressed and holding");
+        OnHoldStart();
+    }
+
+    private void OnLeftMouseRelease(InputAction.CallbackContext context)
+    {
+        
+        Debug.Log("Mouse released");
+        OnHoldEnd();
+    }
+
+    void Update()
+    {
+        // Get the mouse position in world space
+        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePosition.z = 0; // Ensure z-coordinate matches your 2D plane
+
+        // While holding the mouse, move the picked-up object
+        if (isHolding && pickedUpTransform != null)
+        {
+            pickedUpTransform.position = new Vector3(mousePosition.x, mousePosition.y, -1);
+        }
+
         
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnHoldStart()
     {
-        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // Run once when button is pressed
+
+        // Check for raycast hits
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
         if (hit.collider != null)
         {
-            if (Input.GetMouseButton(0))
-            {
-                // Check if the object has the organ info script
+            
+                // Try to pick up the object
                 Organ organInfo = hit.collider.GetComponent<Organ>();
                 if (organInfo != null)
                 {
-                    Debug.Log("Mouse has picked up the organ " + organInfo.name);
-                    Vector3 organVector3 = hit.collider.gameObject.transform.position;
-                    organVector3.x = mousePosition.x;
-                    organVector3.y = mousePosition.y; 
-                    Debug.Log("organVector3.x = " +organVector3.x + " and mousePosition.x = " +mousePosition.x);
+                    isHolding = true;
+                    pickedUpTransform = hit.collider.transform;
+
+                    // Store the original Z position
+                    originalZ = pickedUpTransform.position.z;
+
+                    // Move the object closer to the camera
+                    pickedUpTransform.position = new Vector3(
+                        pickedUpTransform.position.x,
+                        pickedUpTransform.position.y,
+                        -1 // Or any "picked up" z-value closer to the camera
+                    );
+
+                    Debug.Log("Picked up the organ: " + organInfo.name);
                 }
-                else if (Input.GetMouseButtonUp(0))
-                {
-                    
-                }
-            }
-            
-        }
-        else
-        {
             
         }
     }
 
-    private void MoveOrganWithMouse()
+    private void DuringHold()
     {
+
+    }
+
+    private void OnHoldEnd()
+    {
+        
+        
+            isHolding = false;
+
+            // Reset the Z position to the original
+            if (pickedUpTransform != null)
+            {
+                pickedUpTransform.position = new Vector3(
+                    pickedUpTransform.position.x,
+                    pickedUpTransform.position.y,
+                    originalZ
+                );
+
+                Debug.Log("Dropped the organ.");
+                pickedUpTransform = null; // Clear the reference
+            }
         
     }
 }
