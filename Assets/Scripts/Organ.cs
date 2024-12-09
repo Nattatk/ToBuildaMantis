@@ -6,6 +6,12 @@ public class Organ : MonoBehaviour
     public bool isOxygenating { get; private set; } = false;
     public string organName = "Brain";
     public int oxygenLevel = 90;
+    public bool isHypoxic { get; private set; } = false;
+
+    private void Start()
+    {
+        StartCoroutine("OxygenateRoutine");
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -13,8 +19,18 @@ public class Organ : MonoBehaviour
         if (collision.gameObject.name == "TracheaMesh")
         {
             isOxygenating = true;
-            StartCoroutine("OxygenateRoutine");
+            
         }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        
+        if (collision.gameObject.name == "TracheaMesh")
+        {
+            isOxygenating = false;
+        }
+     
     }
 
     private IEnumerator OxygenateRoutine()
@@ -25,6 +41,18 @@ public class Organ : MonoBehaviour
         {
             oxygenLevel++;
         }
-        StartCoroutine("OxygenateRoutine");
+        else if (!isOxygenating && oxygenLevel >=60)
+        {
+            oxygenLevel--;
+        }
+
+        //set isHypoxic bool
+        if (oxygenLevel <= 60)
+        {
+            isHypoxic = true;
+        }
+
+        StartCoroutine(OxygenateRoutine());
     }
+
 }

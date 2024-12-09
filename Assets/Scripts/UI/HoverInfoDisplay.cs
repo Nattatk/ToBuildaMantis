@@ -18,7 +18,8 @@ public class HoverInfoDisplay : MonoBehaviour
             if (organInfo != null)
             {
                 // Update the InfoText with the object's information
-                infoText.text = $"Type: {organInfo.organName}\nIs Oxygenating: {organInfo.isOxygenating}\nOxygen Level: {organInfo.oxygenLevel}%";
+                infoText.text = $"Type: {organInfo.organName}\nIs Oxygenating: {organInfo.isOxygenating}\nOxygen Level: {organInfo.oxygenLevel}%" +
+                    $"\nHypoxic: {organInfo.isHypoxic}";
             }
             else
             {
