@@ -9,9 +9,14 @@ public class TracheaLineDrawer : MonoBehaviour
     public float lineSpeedFactor = 0.1f; // Factor to scale down the mouse velocity to control line speed
     public float maxSpeed = 5f;
     public float smoothingFactor = 0.05f;
+
+    //Scripts
     public MoveOrgan moveOrgan;
+    public ResourceManager resources;
 
     private List<Vector3> points = new List<Vector3>();
+    private int pointsSinceLastDeductionChitin; // track points since last chitin deduction
+    private int pointsPerChitin = 10; // number of points per one chitin deduction
     private Vector3 lastMousePosition;
     private Vector3 currentLinePosition;
     private bool isDrawing = false;
@@ -48,7 +53,11 @@ public class TracheaLineDrawer : MonoBehaviour
         mousePosition.z = 0; //Ensure line is in 2D space
 
         // Detect mouse hold and initiate drawing
-        if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding)
+        //For now: 1) detecting input (NEEDS to be changed to Unity's input system
+        // 2) Checking whether the mouse is in window; if not then do not draw, and
+        // 3) if player is moving an organ, then do not draw (NEEDS to change when trachea tool is programmed)
+        // 4) if resource Chitin is depleted, then do not draw
+        if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding && resources.rChitin >= 1)
         {
             if (!isDrawing)
             {
@@ -100,11 +109,23 @@ public class TracheaLineDrawer : MonoBehaviour
         points.Add(point);
         lineRenderer.positionCount = points.Count;
         lineRenderer.SetPosition(points.Count - 1, point);
-        var randomNumber = Random.Range(1, 9);
-        if (randomNumber == 2)
+
+        pointsSinceLastDeductionChitin++;
+
+        //Deduct one chitin after every 10 points
+        if (pointsSinceLastDeductionChitin >= pointsPerChitin)
         {
+            resources.rChitin--;
             tracheaAS.Play();
+            pointsSinceLastDeductionChitin = 0;
+            
         }
+
+        
+        
+        
+            
+        
        
     }
 
