@@ -16,7 +16,7 @@ public class TracheaLineDrawer : MonoBehaviour
 
     private List<Vector3> points = new List<Vector3>();
     private int pointsSinceLastDeductionChitin; // track points since last chitin deduction
-    private int pointsPerChitin = 10; // number of points per one chitin deduction
+    private int pointsPerChitin = 5; // number of points per one chitin deduction
     private Vector3 lastMousePosition;
     private Vector3 currentLinePosition;
     private bool isDrawing = false;
