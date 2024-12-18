@@ -43,6 +43,8 @@ public class RotationPhysics : MonoBehaviour
 
         // Apply the constrained rotation
         transform.eulerAngles = rotation;
+
+        Debug.Log("Rotation x: " + rotation.x + " Rotation y: " + rotation.y);
     }
 
     float NormalizeAngle(float angle)
