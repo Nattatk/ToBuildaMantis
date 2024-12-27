@@ -9,12 +9,16 @@ public class SpriteRotation : MonoBehaviour
     Additionally, if the velocity is high in both X and Y direction, then play clip #5; high in -X and Y play clip #6;
     high in -X and -Y play clip #7; high in X and -Y play clip #8*/
 
-    public Rigidbody2D rb; // Reference to the Rigidbody2D component
+    
     public Animator animator; // Reference to the Animator component
+    public float momentumDurationFactor = 0.5f;
     public float velocityThreshold = 1.0f; // Threshold for "high velocity"
-    public float zeroThreshold = 0.1f; // Threshold to consider velocity as zero
+    public float diagonalThresholdRatio = 0.5f; 
+
+    
     private Vector3 lastPosition;
-    private Vector2 velocity;
+    private Vector2 lastDirection;
+    private float stateTimer = 0f;
 
     private void Start()
     {
@@ -23,41 +27,49 @@ public class SpriteRotation : MonoBehaviour
     }
     private void Update()
     {
+        // Calculate velocity
         Vector3 currentPosition = transform.position;
-        velocity = (currentPosition - lastPosition) / Time.deltaTime;
+        Vector2 velocity = (currentPosition - lastPosition) / Time.deltaTime;
         lastPosition = currentPosition;
 
-        // Check for close-to-zero velocity
-        if (velocity.magnitude < zeroThreshold)
+        // Determine the direction if the velocity exceeds the threshold
+        if (velocity.magnitude > velocityThreshold)
         {
-            animator.Play("Center"); // Default clip
-            return;
+            lastDirection = velocity.normalized;
+            stateTimer = velocity.magnitude * momentumDurationFactor; // Set timer proportional to speed
+
+            // Check for diagonal movement first
+            if (Mathf.Abs(lastDirection.x) > diagonalThresholdRatio && Mathf.Abs(lastDirection.y) > diagonalThresholdRatio)
+            {
+                // Both x and y are significant; choose diagonal direction
+                if (lastDirection.x > 0 && lastDirection.y > 0) animator.Play("Up_Right");
+                else if (lastDirection.x < 0 && lastDirection.y > 0) animator.Play("Up_Left");
+                else if (lastDirection.x < 0 && lastDirection.y < 0) animator.Play("Down_Left");
+                else if (lastDirection.x > 0 && lastDirection.y < 0) animator.Play("Down_Right");
+            }
+            else if (Mathf.Abs(lastDirection.x) > Mathf.Abs(lastDirection.y))
+            {
+                // Horizontal movement dominates
+                if (lastDirection.x > 0) animator.Play("Right");
+                else animator.Play("Left");
+            }
+            else
+            {
+                // Vertical movement dominates
+                if (lastDirection.y > 0) animator.Play("Up");
+                else animator.Play("Down");
+            }
+        }
+        else if (stateTimer > 0)
+        {
+            //Decrement the timer to maintain the state
+            stateTimer -= Time.deltaTime;
+        }
+        else
+        {
+            //Reset to idle state if the timer runs out
+            animator.Play("Center");
         }
 
-        bool highX = Mathf.Abs(velocity.x) > velocityThreshold;
-        bool highY = Mathf.Abs(velocity.y) > velocityThreshold;
-
-        // Determine animation clip based on velocity direction
-        if (highX && highY)
-        {
-            if (velocity.x > 0 && velocity.y > 0) animator.Play("Up_Right"); // High X and Y
-            else if (velocity.x < 0 && velocity.y > 0) animator.Play("Up_Left"); // High -X and Y
-            else if (velocity.x < 0 && velocity.y < 0) animator.Play("Down_Left"); // High -X and -Y
-            else if (velocity.x > 0 && velocity.y < 0) animator.Play("Down_Right"); // High X and -Y
-            Debug.Log("highX and Y");
-        }
-        else if (highX)
-        {
-            if (velocity.x > 0) animator.Play("Right"); // High X
-            else animator.Play("Left"); // High -X
-            Debug.Log("high X");
-        }
-        else if (highY)
-        {
-            if (velocity.y > 0) animator.Play("Up"); // High Y
-            else animator.Play("Down"); // High -Y
-
-            Debug.Log("high Y");
-        }
     }
 }

@@ -20,6 +20,7 @@ public class TracheaLineDrawer : MonoBehaviour
     private Vector3 lastMousePosition;
     private Vector3 currentLinePosition;
     private bool isDrawing = false;
+    private bool on = true;
     private AudioSource tracheaAS;
     
 
@@ -57,7 +58,8 @@ public class TracheaLineDrawer : MonoBehaviour
         // 2) Checking whether the mouse is in window; if not then do not draw, and
         // 3) if player is moving an organ, then do not draw (NEEDS to change when trachea tool is programmed)
         // 4) if resource Chitin is depleted, then do not draw
-        if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding && resources.rChitin >= 1)
+        if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding && resources.rChitin >= 1
+            && on /*make sure tool is selected*/)
         {
             if (!isDrawing)
             {
@@ -120,12 +122,6 @@ public class TracheaLineDrawer : MonoBehaviour
             pointsSinceLastDeductionChitin = 0;
             
         }
-
-        
-        
-        
-            
-        
        
     }
 
@@ -133,6 +129,18 @@ public class TracheaLineDrawer : MonoBehaviour
     {
         points.Clear();
         lineRenderer.positionCount = 0;
+    }
+
+    public void TurnOnOrOff()
+    {
+        if (on)
+        {
+            on = false;
+        }
+        else
+        {
+            on = true;
+        }
     }
 
 }
