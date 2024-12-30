@@ -9,6 +9,7 @@ public class TracheaLineDrawer : MonoBehaviour
     public float lineSpeedFactor = 0.1f; // Factor to scale down the mouse velocity to control line speed
     public float maxSpeed = 5f;
     public float smoothingFactor = 0.05f;
+    public bool on = true;
 
     //Scripts
     public MoveOrgan moveOrgan;
@@ -20,7 +21,7 @@ public class TracheaLineDrawer : MonoBehaviour
     private Vector3 lastMousePosition;
     private Vector3 currentLinePosition;
     private bool isDrawing = false;
-    private bool on = true;
+    
     private AudioSource tracheaAS;
     
 
@@ -49,9 +50,8 @@ public class TracheaLineDrawer : MonoBehaviour
 
     private void Update()
     {
-        //Get the current mouse position in world space
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0; //Ensure line is in 2D space
+        //Get the current mouse position in world space 
+        Vector3 mousePosition = MousePositionManager.GetMouseWorldPosition();
 
         // Detect mouse hold and initiate drawing
         //For now: 1) detecting input (NEEDS to be changed to Unity's input system
@@ -59,7 +59,7 @@ public class TracheaLineDrawer : MonoBehaviour
         // 3) if player is moving an organ, then do not draw (NEEDS to change when trachea tool is programmed)
         // 4) if resource Chitin is depleted, then do not draw
         if (Input.GetMouseButton(0) && IsMouseInWindow() && !moveOrgan.isHolding && resources.rChitin >= 1
-            && on /*make sure tool is selected*/)
+            && on /*make sure drawing is enabled*/)
         {
             if (!isDrawing)
             {
