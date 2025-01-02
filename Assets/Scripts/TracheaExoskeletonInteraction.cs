@@ -15,6 +15,8 @@ public class TracheaExoskeletonInteraction : MonoBehaviour
     public LayerMask exoskeletonLayer; // Layer for raycasting against the exoskeleton
 
     public TracheaLineDrawer tlDrawer;
+
+    private Vector3 outOfBounds = new Vector3(40, 40, 0);
     void Start()
     {
         
@@ -35,13 +37,13 @@ public class TracheaExoskeletonInteraction : MonoBehaviour
         if (distance <= activationRadius)
         {
             tlDrawer.on = true;
-            spiraclePointIndicator.SetActive(true);
+            //spiraclePointIndicator.SetActive(true);
             spiraclePointIndicator.transform.position = nearestPoint;
         }
         else
         {
             tlDrawer.on = false;
-            spiraclePointIndicator.SetActive(false);
+            spiraclePointIndicator.transform.position = outOfBounds;
         }
     }
 
